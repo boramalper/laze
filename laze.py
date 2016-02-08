@@ -80,32 +80,28 @@ def strip_names(msg: str):
 
         FATAL:  password authentication failed for user
     """
-
-    while True:
-        start = msg.find('"')
-        if start == -1:
-            break
-
-        end = msg.find('"', start + 1)
-
-        if end - start >= 3:
-            msg = msg.replace(msg[start:end + 1], "")
-
-    while True:
-        start = msg.find("'")
-        if start == -1:
-            break
-
-        end = msg.find("'", start + 1)
-
-        if end - start >= 3:
-            msg = msg.replace(msg[start:end + 1], "")
-
+    
+    def strip_names_with(character: chr):
+        nonlocal msg
+        while True:
+            start = msg.find(character)
+            if start == -1:
+                break
+    
+            end = msg.find(character, start + 1)
+    
+            if end - start >= 3:
+                msg = msg.replace(msg[start:end + 1], "")
+    
+    strip_names_with('"')
+    strip_names_with('\'')
     return msg
 
 
 def strip_linecol(msg: str):
     """
+    Strips line and column messages of exception occurrence.
+    
     Example:
         json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
 
@@ -124,6 +120,16 @@ def strip_linecol(msg: str):
 
 
 def strip_urls(msg: str):
+    """
+    Strips all urls from msg.
+    
+    Example:
+        An error has raised while running a task due to AAA. Visit http://company.com for more info.
+        
+        becomes
+        
+        An error has raised while running a task due to AAA. Visit .
+    """
     # colon slash slash
 
     while True:
@@ -143,6 +149,13 @@ def strip_urls(msg: str):
 
 
 def user_interface(results):
+    """
+    Simple interactive interface to show solutions from stackoverflow. A numbered
+    list of links is shown, and entering a number (in range) causes your browser
+    to open the chosen link. Quitting is possible by entering one of q, quit, e or exit.
+    Pressing ^C quits and opens a page to ask a question on stackoverflow.
+    """
+    
     page = 0
     result_per_page = 10
 
@@ -196,6 +209,11 @@ def user_interface(results):
 
 
 def so_search(q, tags=None, accepted=None):
+    """
+    Searches for questions on stackoverflow by tags and returns it. Questions
+    that get accepted answers are directly linked to it.
+    """
+    
     assert isinstance(q, str)
     assert isinstance(tags, (list, type(None)))
     assert isinstance(accepted, (bool, type(None)))
